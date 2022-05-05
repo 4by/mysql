@@ -32,6 +32,14 @@ Prolong Date
 -- функциональная часть
 DELIMITER // 
 
+-- количество полей в person
+CREATE function if not exists personNumber () 
+returns int
+deterministic
+BEGIN
+return ifnull((select count(id) from person), 0);
+END// 
+
 -- функция-рандом для целых чисел
 CREATE function if not exists intRandRange (fromVal int, toVal int) returns int
 deterministic
@@ -49,33 +57,33 @@ END//
 -- процедура для создания поля person
 CREATE PROCEDURE if not exists addPersonArea () 
 BEGIN 
-declare randCounter int default ifnull((select count(id) from person)+1, 1);
+declare personNum int default personNumber() + 1;
 insert into person values (
 null, -- Регистрационный номер клиента
-concat('adressEx', randCounter), -- Адрес клиента
-concat('nameEx', randCounter), -- ФИО клиента
-concat('phoneEx', randCounter), -- Телефон для связи с клиентом
+concat('adressEx', personNum), -- Адрес клиента
+concat('nameEx', personNum), -- ФИО клиента
+concat('phoneEx', personNum), -- Телефон для связи с клиентом
 intRandRange(1, 100), -- Регистрационный номер договора
-concat('adressFlatEx', randCounter), -- Адрес квартиры
+concat('adressFlatEx', personNum), -- Адрес квартиры
 true,-- Наличие кодового замка на подъезде
 intRandRange(1, 100),-- Количество этажей в доме
 intRandRange(1, 100),-- Этаж, на котором расположена квартира
-concat('typeHouseEx', randCounter), -- Тип дома (кирпичный, панельный)
-concat('typeDoorEx', randCounter), -- Тип квартирной двери (мет, дер, две шт.)
+concat('typeHouseEx', personNum), -- Тип дома (кирпичный, панельный)
+concat('typeDoorEx', personNum), -- Тип квартирной двери (мет, дер, две шт.)
 true,-- Наличие балкона
-concat('typeBalconyEx', randCounter) ,-- Тип балкона (отдельный, совмещенный)
+concat('typeBalconyEx', personNum) ,-- Тип балкона (отдельный, совмещенный)
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 decRandRange(1, 100),-- Компенсация при краже имущества
 now(),-- Начало действия договора
 now(),-- Окончание действия
 intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
-concat('chiefEx', randCounter), -- Командир экипажа
-concat('brandEx', randCounter), -- Марка автомобиля
+concat('chiefEx', personNum), -- Командир экипажа
+concat('brandEx', personNum), -- Марка автомобиля
 now(),-- Дата и время выезда
 true,-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
-concat('documentEx', randCounter), -- Документ, оформленный при задержании
+concat('documentEx', personNum), -- Документ, оформленный при задержании
 now()-- Продление срока действия договора
 );
 END// 

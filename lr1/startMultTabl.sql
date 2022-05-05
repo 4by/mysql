@@ -57,7 +57,7 @@ Prolong Date
 
 DELIMITER // 
 
-
+-- количество полей в person
 CREATE function if not exists personNumber () 
 returns int
 deterministic
@@ -65,7 +65,7 @@ BEGIN
 return ifnull((select count(id) from person), 0);
 END// 
 
-
+-- количество полей в house
 CREATE function if not exists houseNumber () 
 returns int
 deterministic
@@ -73,7 +73,7 @@ BEGIN
 return ifnull((select count(id) from house), 0);
 END// 
 
-
+-- количество полей в serving
 CREATE function if not exists servingNumber () 
 returns int
 deterministic
@@ -81,7 +81,7 @@ BEGIN
 return ifnull((select count(id) from serving), 0);
 END// 
 
-
+-- количество полей в incident
 CREATE function if not exists incidentNumber () 
 returns int
 deterministic
