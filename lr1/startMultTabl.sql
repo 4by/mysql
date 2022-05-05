@@ -62,7 +62,7 @@ CREATE function if not exists personNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from person), 0);
+return (select count(id) from person);
 END// 
 
 -- количество полей в house
@@ -70,7 +70,7 @@ CREATE function if not exists houseNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from house), 0);
+return (select count(id) from house);
 END// 
 
 -- количество полей в serving
@@ -78,7 +78,7 @@ CREATE function if not exists servingNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from serving), 0);
+return (select count(id) from serving);
 END// 
 
 -- количество полей в incident
@@ -86,7 +86,7 @@ CREATE function if not exists incidentNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from incident), 0);
+return (select count(id) from incident);
 END// 
 
 
@@ -108,22 +108,41 @@ return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
 END// 
 
 -- процедура для создания поля person
-CREATE PROCEDURE if not exists addPersonArea (personNum int) 
+CREATE PROCEDURE if not exists addPersonArea (numberCount int) 
 BEGIN 
-set personNum = (personNum+1);
+
+declare personNum int default 0;
+declare i int default 0;
+
+while i<numberCount do
+set personNum = personNumber()+1;
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
 concat('nameEx', personNum), -- ФИО клиента
 concat('phoneEx', personNum) -- Телефон для связи с клиентом
 );
+
+set i = i+1;
+end while;
 END// 
 
 
 -- процедура для создания поля house
-CREATE PROCEDURE if not exists addHouseArea (personNum int, houseNum int) 
+CREATE PROCEDURE if not exists addHouseArea (numberCount int) 
 BEGIN 
-set houseNum = (houseNum + 1);
+
+
+declare houseNum int default 0;
+declare personNum int default 0;
+declare i int default 0;
+
+while i<numberCount do
+
+set houseNum = houseNumber()+1;
+set personNum = personNumber();
+
+
 insert into house values (
 null, -- Регистрационный номер клиента
 intRandRange(0, personNum), -- ссылка на пользователя
@@ -136,13 +155,24 @@ concat('typeDoorEx', houseNum), -- Тип квартирной двери (ме�
 true,-- Наличие балкона
 concat('typeBalconyEx', houseNum) -- Тип балкона (отдельный, совмещенный)
 );
+
+set i = i+1;
+end while;
+
 END// 
 
 
 
 -- процедура для создания поля serving
-CREATE PROCEDURE if not exists addServingArea (houseNum int) 
+CREATE PROCEDURE if not exists addServingArea (numberCount int) 
 BEGIN 
+declare houseNum int default 0;
+
+declare i int default 0;
+while i<numberCount do
+
+set houseNum = houseNumber();
+
 insert into serving values (
 null, -- Регистрационный номер клиента
 intRandRange(0, houseNum), -- ссылка на дом
@@ -151,12 +181,29 @@ decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 now(),-- Начало действия договора
 now()-- Окончание действия
 );
+
+set i = i+1;
+end while;
+
 END// 
 
 -- процедура для создания поля incident
-CREATE PROCEDURE if not exists addIncidentArea (houseNum int, servingNum int, incidentNum int) 
+CREATE PROCEDURE if not exists addIncidentArea (numberCount int) 
 BEGIN 
-set incidentNum = (incidentNum+1);
+
+
+declare incidentNum int default 0;
+declare houseNum int default 0;
+declare servingNum int default 0;
+
+declare i int default 0;
+while i<numberCount do
+
+set incidentNum = incidentNumber()+1;
+set houseNum = houseNumber();
+set servingNum = servingNumber();
+
+
 insert into incident values (
 null, -- Регистрационный номер клиента
 intRandRange(0, houseNum), -- ссылка на дом
@@ -172,6 +219,11 @@ decRandRange(1, 100),-- Величина штрафа за ложный вызо
 concat('documentEx', incidentNum), -- Документ, оформленный при задержании
 now()-- Продление срока действия договора
 );
+
+set i = i+1;
+end while;
+
+
 END// 
 
 
@@ -180,21 +232,26 @@ DELIMITER ;
 
 
 -- заполнение таблицы данными
-call addPersonArea(personNumber());
-call addHouseArea(personNumber(), houseNumber());
-call addServingArea(houseNumber());
-call addIncidentArea(houseNumber(), servingNumber(), incidentNumber());
+call addPersonArea(15);
+call addHouseArea(20);
+call addServingArea(10);
+call addIncidentArea(7);
 
 -- получение информации о таблицах
-show tables;
-describe person;
-describe house;
-describe serving;
-describe incident;
-select Phone from person;
-select Floor from house;
-select Cost from serving;
-select ActionID from incident;
-update person set Name = "nameChangedEx1";
+-- select count(id) from person;
+-- select count(id) from house;
+-- select count(id) from serving;
+-- select count(id) from incident;
+-- select id, house_id, serving_id from incident order by id;
+-- show tables;
+-- describe person;
+-- describe house;
+-- describe serving;
+-- describe incident;
+-- select Phone from person;
+-- select Floor from house;
+-- select Cost from serving;
+-- select ActionID from incident;
+-- update person set Name = "nameChangedEx1";
 -- alter table person drop column name; -- выдаст ошибку на второй вызов
 -- alter table person drop column id; -- не сработает

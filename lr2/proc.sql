@@ -4,25 +4,14 @@ DELIMITER //
 
 CREATE PROCEDURE if not exists addAreas (number int) 
 BEGIN 
+
+
 declare i int default 0;
-
-declare maxPersonId int;
-declare maxHouseId int;
-declare maxServingId int;
-declare maxIncidentId int;
-
 while i<number do
-
-set maxPersonId = (select max(id) from person);
-set maxHouseId = (select max(id) from house);
-set maxServingId = (select max(id) from serving);
-set maxIncidentId = (select max(id) from incident);
-
-
--- call addPersonArea(maxPersonId);
--- call addHouseArea(maxHouseId);
--- call addServingArea(maxServingId);
--- call addIncidentArea(maxIncidentId);
+call addPersonArea((select max(id) from person));
+call addHouseArea((select max(id) from house));
+call addServingArea((select max(id) from serving));
+call addIncidentArea((select max(id) from incident));
 set i = i+1;
 end while;
 END// 
