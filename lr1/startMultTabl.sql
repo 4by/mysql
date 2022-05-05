@@ -90,7 +90,6 @@ return (select count(id) from incident);
 END// 
 
 
-
 -- функция-рандом для целых чисел
 CREATE function if not exists intRandRange (fromVal int, toVal int) 
 returns int
@@ -107,7 +106,7 @@ BEGIN
 return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
 END// 
 
--- процедура для создания поля person
+-- процедура для внесения в person множества полей
 CREATE PROCEDURE if not exists addPersonArea (numberCount int) 
 BEGIN 
 
@@ -128,10 +127,9 @@ end while;
 END// 
 
 
--- процедура для создания поля house
+-- процедура для внесения в house множества полей
 CREATE PROCEDURE if not exists addHouseArea (numberCount int) 
 BEGIN 
-
 
 declare houseNum int default 0;
 declare personNum int default 0;
@@ -141,7 +139,6 @@ while i<numberCount do
 
 set houseNum = houseNumber()+1;
 set personNum = personNumber();
-
 
 insert into house values (
 null, -- Регистрационный номер клиента
@@ -163,7 +160,7 @@ END//
 
 
 
--- процедура для создания поля serving
+-- процедура для внесения в serving множества полей
 CREATE PROCEDURE if not exists addServingArea (numberCount int) 
 BEGIN 
 declare houseNum int default 0;
@@ -187,7 +184,7 @@ end while;
 
 END// 
 
--- процедура для создания поля incident
+-- процедура для внесения в incident множества полей
 CREATE PROCEDURE if not exists addIncidentArea (numberCount int) 
 BEGIN 
 
@@ -238,6 +235,7 @@ call addServingArea(10);
 call addIncidentArea(7);
 
 -- получение информации о таблицах
+
 -- select count(id) from person;
 -- select count(id) from house;
 -- select count(id) from serving;
