@@ -108,9 +108,9 @@ return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
 END// 
 
 -- процедура для создания поля person
-CREATE PROCEDURE if not exists addPersonArea () 
+CREATE PROCEDURE if not exists addPersonArea (personNum int) 
 BEGIN 
-declare personNum int default personNumber()+1;
+set personNum = (personNum+1);
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
@@ -121,10 +121,9 @@ END//
 
 
 -- процедура для создания поля house
-CREATE PROCEDURE if not exists addHouseArea () 
+CREATE PROCEDURE if not exists addHouseArea (personNum int, houseNum int) 
 BEGIN 
-declare personNum int default personNumber();
-declare houseNum int default houseNumber() + 1;
+set houseNum = (houseNum + 1);
 insert into house values (
 null, -- Регистрационный номер клиента
 intRandRange(0, personNum), -- ссылка на пользователя
@@ -142,9 +141,8 @@ END//
 
 
 -- процедура для создания поля serving
-CREATE PROCEDURE if not exists addServingArea () 
+CREATE PROCEDURE if not exists addServingArea (houseNum int) 
 BEGIN 
-declare houseNum int default houseNumber();
 insert into serving values (
 null, -- Регистрационный номер клиента
 intRandRange(0, houseNum), -- ссылка на дом
@@ -156,11 +154,9 @@ now()-- Окончание действия
 END// 
 
 -- процедура для создания поля incident
-CREATE PROCEDURE if not exists addIncidentArea () 
+CREATE PROCEDURE if not exists addIncidentArea (houseNum int, servingNum int, incidentNum int) 
 BEGIN 
-declare houseNum int default houseNumber();
-declare servingNum int default servingNumber();
-declare incidentNum int default incidentNumber()+1;
+set incidentNum = (incidentNum+1);
 insert into incident values (
 null, -- Регистрационный номер клиента
 intRandRange(0, houseNum), -- ссылка на дом
@@ -184,10 +180,10 @@ DELIMITER ;
 
 
 -- заполнение таблицы данными
-call addPersonArea();
-call addHouseArea();
-call addServingArea();
-call addIncidentArea();
+call addPersonArea(personNumber());
+call addHouseArea(personNumber(), houseNumber());
+call addServingArea(houseNumber());
+call addIncidentArea(houseNumber(), servingNumber(), incidentNumber());
 
 -- получение информации о таблицах
 show tables;

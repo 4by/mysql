@@ -55,9 +55,9 @@ return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
 END// 
 
 -- процедура для создания поля person
-CREATE PROCEDURE if not exists addPersonArea () 
+CREATE PROCEDURE if not exists addPersonArea (personNum int) 
 BEGIN 
-declare personNum int default personNumber() + 1;
+set personNum = (personNum + 1);
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
@@ -92,9 +92,9 @@ END//
 DELIMITER ;
 
 -- заполнение таблицы данными
-call addPersonArea();
-call addPersonArea();
-call addPersonArea();
+call addPersonArea(personNumber());
+call addPersonArea(personNumber());
+call addPersonArea(personNumber());
 
 -- получение информации о таблице
 show tables;
