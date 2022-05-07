@@ -44,20 +44,20 @@ END//
 CREATE function if not exists intRandRange (fromVal int, toVal int) returns int
 deterministic
 BEGIN 
-return (SELECT (floor(RAND()*(fromVal-toVal+1)+toVal)));
+return (SELECT (floor(RAND()*(toVal-fromVal+1)+fromVal)));
 END// 
 
 -- функция-рандом для десятичных чисел
 CREATE function if not exists decRandRange (fromVal int, toVal int) returns decimal(15,2)
 deterministic
 BEGIN 
-return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
+return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
 END// 
 
 -- процедура для создания поля person
 CREATE PROCEDURE if not exists addPersonArea () 
 BEGIN 
-declare personNum int default (personNumber() + 1);
+declare personNum int default personNumber() + 1;
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
@@ -65,12 +65,12 @@ concat('nameEx', personNum), -- ФИО клиента
 concat('phoneEx', personNum), -- Телефон для связи с клиентом
 intRandRange(1, 100), -- Регистрационный номер договора
 concat('adressFlatEx', personNum), -- Адрес квартиры
-true,-- Наличие кодового замка на подъезде
+intRandRange(0,1),-- Наличие кодового замка на подъезде
 intRandRange(1, 100),-- Количество этажей в доме
 intRandRange(1, 100),-- Этаж, на котором расположена квартира
 concat('typeHouseEx', personNum), -- Тип дома (кирпичный, панельный)
 concat('typeDoorEx', personNum), -- Тип квартирной двери (мет, дер, две шт.)
-true,-- Наличие балкона
+intRandRange(0,1),-- Наличие балкона
 concat('typeBalconyEx', personNum) ,-- Тип балкона (отдельный, совмещенный)
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 decRandRange(1, 100),-- Компенсация при краже имущества
@@ -81,7 +81,7 @@ intRandRange(1, 100),-- Номер экипажа, выезжавшего на �
 concat('chiefEx', personNum), -- Командир экипажа
 concat('brandEx', personNum), -- Марка автомобиля
 now(),-- Дата и время выезда
-true,-- Вызов ложный (да/нет)
+intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
 concat('documentEx', personNum), -- Документ, оформленный при задержании
 now()-- Продление срока действия договора

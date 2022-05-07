@@ -2,7 +2,6 @@
 -- создание таблицы person с полями
 create table if not exists person(
 id int primary key auto_increment not null,
-Address varchar(60),
 Name varchar(60),
 Phone varchar(10) not null
 );
@@ -12,6 +11,7 @@ create table if not exists house(
 id int primary key auto_increment not null,
 person_id int not null,
 foreign key (person_id) references person(id),
+Address varchar(60),
 AddressFlat varchar(60),
 KeyVal bool,
 Floors int,
@@ -95,7 +95,7 @@ CREATE function if not exists intRandRange (fromVal int, toVal int)
 returns int
 deterministic
 BEGIN 
-return (SELECT (floor(RAND()*(fromVal-toVal+1)+toVal)));
+return (SELECT (floor(RAND()*(toVal-fromVal+1)+fromVal)));
 END// 
 
 -- функция-рандом для десятичных чисел
@@ -103,57 +103,53 @@ CREATE function if not exists decRandRange (fromVal int, toVal int)
 returns decimal(15,2)
 deterministic
 BEGIN 
-return (SELECT (round(RAND()*(fromVal-toVal+1)+toVal, 2)));
+return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
 END// 
 
 -- процедура для внесения в person множества полей
-CREATE PROCEDURE if not exists addPersonArea (numberCount int) 
+CREATE PROCEDURE if not exists addPersonArea (i int) 
 BEGIN 
 
 declare personNum int default 0;
-declare i int default 0;
 
-while i<numberCount do
+while i>0 do
 set personNum = personNumber()+1;
 insert into person values (
 null, -- Регистрационный номер клиента
-concat('adressEx', personNum), -- Адрес клиента
 concat('nameEx', personNum), -- ФИО клиента
 concat('phoneEx', personNum) -- Телефон для связи с клиентом
 );
-
-set i = i+1;
+set i = i-1;
 end while;
+
 END// 
 
 
 -- процедура для внесения в house множества полей
-CREATE PROCEDURE if not exists addHouseArea (numberCount int) 
+CREATE PROCEDURE if not exists addHouseArea (i int) 
 BEGIN 
 
 declare houseNum int default 0;
 declare personNum int default 0;
-declare i int default 0;
 
-while i<numberCount do
 
+while i>0 do
 set houseNum = houseNumber()+1;
 set personNum = personNumber();
-
 insert into house values (
 null, -- Регистрационный номер клиента
-intRandRange(0, personNum), -- ссылка на пользователя
+intRandRange(1, personNum), -- ссылка на пользователя
+concat('adressEx', personNum), -- Адрес клиента
 concat('adressFlatEx', houseNum), -- Адрес квартиры
-true,-- Наличие кодового замка на подъезде
+intRandRange(0,1),-- Наличие кодового замка на подъезде
 intRandRange(1, 100),-- Количество этажей в доме
 intRandRange(1, 100),-- Этаж, на котором расположена квартира
 concat('typeHouseEx', houseNum), -- Тип дома (кирпичный, панельный)
 concat('typeDoorEx', houseNum), -- Тип квартирной двери (мет, дер, две шт.)
-true,-- Наличие балкона
+intRandRange(0,1),-- Наличие балкона
 concat('typeBalconyEx', houseNum) -- Тип балкона (отдельный, совмещенный)
 );
-
-set i = i+1;
+set i = i-1;
 end while;
 
 END// 
@@ -161,31 +157,28 @@ END//
 
 
 -- процедура для внесения в serving множества полей
-CREATE PROCEDURE if not exists addServingArea (numberCount int) 
+CREATE PROCEDURE if not exists addServingArea (i int) 
 BEGIN 
 declare houseNum int default 0;
 
-declare i int default 0;
-while i<numberCount do
 
+while i>0 do
 set houseNum = houseNumber();
-
 insert into serving values (
 null, -- Регистрационный номер клиента
-intRandRange(0, houseNum), -- ссылка на дом
+intRandRange(1, houseNum), -- ссылка на дом
 intRandRange(1, 100), -- Регистрационный номер договора
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 now(),-- Начало действия договора
 now()-- Окончание действия
 );
-
-set i = i+1;
+set i = i-1;
 end while;
 
 END// 
 
 -- процедура для внесения в incident множества полей
-CREATE PROCEDURE if not exists addIncidentArea (numberCount int) 
+CREATE PROCEDURE if not exists addIncidentArea (i int) 
 BEGIN 
 
 
@@ -193,31 +186,27 @@ declare incidentNum int default 0;
 declare houseNum int default 0;
 declare servingNum int default 0;
 
-declare i int default 0;
-while i<numberCount do
 
+while i>0 do
 set incidentNum = incidentNumber()+1;
 set houseNum = houseNumber();
 set servingNum = servingNumber();
-
-
 insert into incident values (
 null, -- Регистрационный номер клиента
-intRandRange(0, houseNum), -- ссылка на дом
-intRandRange(0, servingNum), -- ссылка на обслуживание
+intRandRange(1, houseNum), -- ссылка на дом
+intRandRange(1, servingNum), -- ссылка на обслуживание
 decRandRange(1, 100),-- Компенсация при краже имущества
 intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
 concat('chiefEx', incidentNum), -- Командир экипажа
 concat('brandEx', incidentNum), -- Марка автомобиля
 now(),-- Дата и время выезда
-true,-- Вызов ложный (да/нет)
+intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
 concat('documentEx', incidentNum), -- Документ, оформленный при задержании
 now()-- Продление срока действия договора
 );
-
-set i = i+1;
+set i = i-1;
 end while;
 
 
