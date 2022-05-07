@@ -1,84 +1,34 @@
 DELIMITER // 
 
 
--- выполнение динамического sql
-CREATE PROCEDURE if not exists exec (arg varchar(100)) 
-BEGIN 
-SET @s = arg;
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-set @s = null;
-END// 
-
-
 -- первое задание в Л.Р.1
 
 
 -- второе задание (выбираю диапазон по id)
-CREATE PROCEDURE if not exists getInRange 
-(tabl varchar(50), 
-area varchar(50), 
-arg1 int, 
-arg2 int) 
+CREATE PROCEDURE if not exists getIdInRange (arg1 int, arg2 int) 
 BEGIN 
-call exec (CONCAT(
-'select * from ',
-tabl,
-' where ',
-area,
-' between ',
-arg1,
-' and ',
-arg2
-));
+select * from person where id between arg1 and arg2 ;
+select * from house where id between arg1 and arg2 ;
+select * from serving where id between arg1 and arg2 ;
+select * from incident where id between arg1 and arg2 ;
 END// 
 
 
 -- третье задание
-CREATE PROCEDURE if not exists getAverage (tabl varchar(50), area varchar(50)) 
+CREATE PROCEDURE if not exists getAverage () 
 BEGIN 
-
-call exec (CONCAT('select avg(',
-area,
-') from  ',
-tabl
-));
-
--- select avg(id) from person;
--- select avg(floor) from house;
--- select avg(TreatyID) from serving;
--- select avg(ActionID) from incident;
+select avg(id) from person;
+select avg(floor) from house;
+select avg(TreatyID) from serving;
+select avg(ActionID) from incident;
 END// 
 
 -- четвертое задание
-CREATE PROCEDURE if not exists getGroupAverage 
-(tabl varchar(50),
-area1 varchar(50),
-area2 varchar(50),
-avgArea varchar(50)
-) 
+CREATE PROCEDURE if not exists getAverageForArea () 
 BEGIN 
-
-call exec (CONCAT(
-'select ',
-area1,
-', ',
-area2,
-', ',
-' avg(',
-avgArea,
-') from ',
-tabl,
-' group by ',
-area1,
-', ',
-area2
-));
-
--- select id, person_id, avg(balcony) from house group by id, person_id;
--- select id, house_id, avg(cost) from serving group by id, house_id;
--- select id, serving_id, avg(tax) from incident group by id, serving_id;
+select id, person_id, avg(balcony) from house group by id, person_id;
+select id, house_id, avg(cost) from serving group by id, house_id;
+select id, serving_id, avg(tax) from incident group by id, serving_id;
 END// 
 
 -- пятое задание
@@ -119,6 +69,17 @@ delete from incident where tax<75;
 END// 
 
 
+-- выполнение динамического sql
+CREATE PROCEDURE if not exists exec (arg varchar(50)) 
+BEGIN 
+SET @s = arg;
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+set @s = null;
+END// 
+
+
 -- сохранение (удалит ключи у зависимых таблиц)
 CREATE PROCEDURE if not exists pushToBackup (arg varchar(50)) 
 BEGIN 
@@ -126,7 +87,6 @@ call exec (CONCAT('drop table if exists ', arg,'SaveTable'));
 call exec (CONCAT('create table ', arg,'SaveTable like ', arg));
 call exec (CONCAT('insert into  ', arg,'SaveTable select * from ', arg));
 END// 
-
 
 
 -- загрузка
@@ -142,14 +102,14 @@ END//
 
 DELIMITER ;
 
--- call getInRange('person','id',2,4);
--- call getAverage('house', 'id');
-call getGroupAverage('house', 'id', 'person_id', 'balcony');
--- call getNewValues();
--- call concatAreas ();
--- call useConditionWithQuery ();
--- call updateData ();
--- call deleteData ();
--- call pushToBackup ('person');
--- call pullFromBackup ('person');
+call getIdInRange(2,4);
+call getAverage();
+call getAverageForArea();
+call getNewValues();
+call concatAreas ();
+call useConditionWithQuery ();
+call updateData ();
+call deleteData ();
+call pushToBackup ('person');
+call pullFromBackup ('person');
 
