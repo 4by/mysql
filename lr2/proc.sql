@@ -78,7 +78,7 @@ EXECUTE stmt1;
 DEALLOCATE PREPARE stmt1;
 set @s1 = null;
 
-SET @s = CONCAT('delete from ', arg,'SaveTable');
+SET @s = CONCAT('truncate table ', arg,'SaveTable');
 PREPARE stmt FROM @s;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
