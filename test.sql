@@ -19,19 +19,33 @@ insert into t2 values (null,'2','b');
 
 
 DELIMITER // 
-CREATE PROCEDURE if not exists qq (arg varchar(10)) 
+
+
+
+CREATE PROCEDURE if not exists saveTable (arg varchar(50)) 
 BEGIN 
 
+SET @s1 = CONCAT('create table ', arg,'SaveTable like ', arg);
+PREPARE stmt FROM @s1;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+set @s1 = null;
 
-SET @s = CONCAT('SELECT ', arg,' FROM t1');
-
-PREPARE stmt3 FROM @s;
-EXECUTE stmt3;
-DEALLOCATE PREPARE stmt3;
-set @s = null;
-
+SET @s2 = CONCAT('insert into  ', arg,'SaveTable select * from ', arg);
+PREPARE stmt2 FROM @s2;
+EXECUTE stmt2;
+DEALLOCATE PREPARE stmt2;
+set @s2 = null;
 
 END// 
+
+
+
+
+
+
+
+
 DELIMITER ; 
 
-call qq('c1');
+call saveTable('t1');

@@ -61,21 +61,64 @@ update house set keyval = 1 where floors>7;
 END// 
 
 -- девятое задание
-CREATE PROCEDURE if not exists updateData () 
+CREATE PROCEDURE if not exists deleteData () 
 BEGIN 
 delete from serving where cost<15;
 delete from incident where tax<75;
+-- select house_id, count(house_id)serv_number from serving group by house_id having house_id=4;
+END// 
+
+-- сохранение
+CREATE PROCEDURE if not exists saveTable (arg varchar(50)) 
+BEGIN 
+
+
+select CONCAT('create if not exists table ', arg,'SaveTable as select * from ', arg);
+
+
+SET @s1 = CONCAT('create table if not exists ', arg,'SaveTable like ', arg);
+SET @s1 = CONCAT('create table if not exists table ', arg,'SaveTable as select * from ', arg);
+PREPARE stmt FROM @s1;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+set @s1 = null;
+
+-- SET @s2 = CONCAT('insert into  ', arg,'SaveTable select * from ', arg);
+-- PREPARE stmt2 FROM @s2;
+-- EXECUTE stmt2;
+-- DEALLOCATE PREPARE stmt2;
+-- set @s2 = null;
+
 END// 
 
 
 
--- CREATE PROCEDURE if not exists saveTable () 
+-- -- загрузка
+-- CREATE PROCEDURE if not exists loadAndDropTable (arg varchar(50)) 
 -- BEGIN 
--- create table newLike like t1;
+
+-- SET @s = CONCAT('truncate table ', arg);
+-- PREPARE stmt FROM @s;
+-- EXECUTE stmt;
+-- DEALLOCATE PREPARE stmt;
+-- set @s = null;
+
+-- SET @s1 = CONCAT('insert into  ', arg,' select * from ',arg,'SaveTable ');
+-- PREPARE stmt1 FROM @s1;
+-- EXECUTE stmt1;
+-- DEALLOCATE PREPARE stmt1;
+-- set @s1 = null;
+
+-- SET @s2 = CONCAT('drop table ', arg);
+-- PREPARE stmt2 FROM @s2;
+-- EXECUTE stmt2;
+-- DEALLOCATE PREPARE stmt2;
+-- set @s2 = null;
+
 -- END// 
 
 
--- select house_id, count(house_id)serv_number from serving group by house_id having house_id=4;
+
 
 
 DELIMITER ;
@@ -86,4 +129,11 @@ call getIdInRange(2,4);
 call getAverage();
 call getAverageForArea();
 call getNewValues();
+call concatAreas ();
+
+call useConditionWithQuery ();
+call updateData ();
+call deleteData ();
+call saveTable ('t1');
+-- call loadAndDropTable ('person');
 
