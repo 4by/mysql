@@ -72,30 +72,31 @@ END//
 CREATE PROCEDURE if not exists saveTable (arg varchar(50)) 
 BEGIN 
 
-
-select CONCAT('create if not exists table ', arg,'SaveTable as select * from ', arg);
-
-
 SET @s1 = CONCAT('create table if not exists ', arg,'SaveTable like ', arg);
-SET @s1 = CONCAT('create table if not exists table ', arg,'SaveTable as select * from ', arg);
-PREPARE stmt FROM @s1;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
+PREPARE stmt1 FROM @s1;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
 set @s1 = null;
 
--- SET @s2 = CONCAT('insert into  ', arg,'SaveTable select * from ', arg);
--- PREPARE stmt2 FROM @s2;
--- EXECUTE stmt2;
--- DEALLOCATE PREPARE stmt2;
--- set @s2 = null;
+SET @s = CONCAT('delete from ', arg,'SaveTable');
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+set @s = null;
+
+SET @s2 = CONCAT('insert into  ', arg,'SaveTable select * from ', arg);
+PREPARE stmt2 FROM @s2;
+EXECUTE stmt2;
+DEALLOCATE PREPARE stmt2;
+set @s2 = null;
 
 END// 
 
 
 
--- -- загрузка
--- CREATE PROCEDURE if not exists loadAndDropTable (arg varchar(50)) 
--- BEGIN 
+-- загрузка
+CREATE PROCEDURE if not exists loadAndDropTable (arg varchar(50)) 
+BEGIN 
 
 -- SET @s = CONCAT('truncate table ', arg);
 -- PREPARE stmt FROM @s;
@@ -115,7 +116,7 @@ END//
 -- DEALLOCATE PREPARE stmt2;
 -- set @s2 = null;
 
--- END// 
+END// 
 
 
 
@@ -134,6 +135,6 @@ call concatAreas ();
 call useConditionWithQuery ();
 call updateData ();
 call deleteData ();
-call saveTable ('t1');
+call saveTable ('person');
 -- call loadAndDropTable ('person');
 

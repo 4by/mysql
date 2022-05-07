@@ -10,7 +10,9 @@ Phone varchar(10) not null
 create table if not exists house(
 id int primary key auto_increment not null,
 person_id int not null,
-foreign key (person_id) references person(id),
+foreign key (person_id) 
+references person(id)
+on delete cascade,
 Address varchar(60),
 AddressFlat varchar(60),
 KeyVal bool,
@@ -26,7 +28,9 @@ TypeBalcony varchar(20)
 create table if not exists serving(
 id int primary key auto_increment not null,
 house_id int not null,
-foreign key (house_id) references house(id),
+foreign key (house_id) 
+references house(id)
+on delete cascade,
 TreatyID int,
 Cost decimal(15,2),
 DateStart Date,
@@ -38,8 +42,12 @@ create table if not exists incident(
 id int primary key auto_increment not null,
 house_id int not null,
 serving_id int not null,
-foreign key (house_id) references house(id),
-foreign key (serving_id) references serving(id),
+foreign key (house_id) 
+references house(id)
+on delete cascade,
+foreign key (serving_id) 
+references serving(id)
+on delete cascade,
 Compensation decimal(15,2),
 ActionID int,
 PatrolID int,
