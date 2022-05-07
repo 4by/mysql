@@ -12,6 +12,7 @@ id int primary key auto_increment not null,
 person_id int not null,
 foreign key (person_id) 
 references person(id)
+on update cascade
 on delete cascade,
 Address varchar(60),
 AddressFlat varchar(60),
@@ -30,6 +31,7 @@ id int primary key auto_increment not null,
 house_id int not null,
 foreign key (house_id) 
 references house(id)
+on update cascade
 on delete cascade,
 TreatyID int,
 Cost decimal(15,2),
@@ -44,9 +46,11 @@ house_id int not null,
 serving_id int not null,
 foreign key (house_id) 
 references house(id)
+on update cascade
 on delete cascade,
 foreign key (serving_id) 
 references serving(id)
+on update cascade
 on delete cascade,
 Compensation decimal(15,2),
 ActionID int,
@@ -226,10 +230,10 @@ DELIMITER ;
 
 
 -- заполнение таблицы данными
-call addPersonArea(15);
-call addHouseArea(20);
-call addServingArea(10);
-call addIncidentArea(7);
+call addPersonArea(5);
+call addHouseArea(3);
+call addServingArea(4);
+call addIncidentArea(2);
 
 -- получение информации о таблицах
 

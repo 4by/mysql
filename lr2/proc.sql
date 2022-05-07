@@ -1,34 +1,84 @@
 DELIMITER // 
 
 
+-- выполнение динамического sql
+CREATE PROCEDURE if not exists exec (arg varchar(100)) 
+BEGIN 
+SET @s = arg;
+PREPARE stmt FROM @s;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+set @s = null;
+END// 
+
+
 -- первое задание в Л.Р.1
 
 
 -- второе задание (выбираю диапазон по id)
-CREATE PROCEDURE if not exists getIdInRange (arg1 int, arg2 int) 
+CREATE PROCEDURE if not exists getInRange 
+(tabl varchar(50), 
+area varchar(50), 
+arg1 int, 
+arg2 int) 
 BEGIN 
-select * from person where id between arg1 and arg2 ;
-select * from house where id between arg1 and arg2 ;
-select * from serving where id between arg1 and arg2 ;
-select * from incident where id between arg1 and arg2 ;
+call exec (CONCAT(
+'select * from ',
+tabl,
+' where ',
+area,
+' between ',
+arg1,
+' and ',
+arg2
+));
 END// 
 
 
 -- третье задание
-CREATE PROCEDURE if not exists getAverage () 
+CREATE PROCEDURE if not exists getAverage (tabl varchar(50), area varchar(50)) 
 BEGIN 
-select avg(id) from person;
-select avg(floor) from house;
-select avg(TreatyID) from serving;
-select avg(ActionID) from incident;
+
+call exec (CONCAT('select avg(',
+area,
+') from  ',
+tabl
+));
+
+-- select avg(id) from person;
+-- select avg(floor) from house;
+-- select avg(TreatyID) from serving;
+-- select avg(ActionID) from incident;
 END// 
 
 -- четвертое задание
-CREATE PROCEDURE if not exists getAverageForArea () 
+CREATE PROCEDURE if not exists getGroupAverage 
+(tabl varchar(50),
+area1 varchar(50),
+area2 varchar(50),
+avgArea varchar(50)
+) 
 BEGIN 
-select id, person_id, avg(balcony) from house group by id, person_id;
-select id, house_id, avg(cost) from serving group by id, house_id;
-select id, serving_id, avg(tax) from incident group by id, serving_id;
+
+call exec (CONCAT(
+'select ',
+area1,
+', ',
+area2,
+', ',
+' avg(',
+avgArea,
+') from ',
+tabl,
+' group by ',
+area1,
+', ',
+area2
+));
+
+-- select id, person_id, avg(balcony) from house group by id, person_id;
+-- select id, house_id, avg(cost) from serving group by id, house_id;
+-- select id, serving_id, avg(tax) from incident group by id, serving_id;
 END// 
 
 -- пятое задание
@@ -68,73 +118,38 @@ delete from incident where tax<75;
 -- select house_id, count(house_id)serv_number from serving group by house_id having house_id=4;
 END// 
 
--- сохранение
-CREATE PROCEDURE if not exists saveTable (arg varchar(50)) 
+
+-- сохранение (удалит ключи у зависимых таблиц)
+CREATE PROCEDURE if not exists pushToBackup (arg varchar(50)) 
 BEGIN 
-
-SET @s1 = CONCAT('create table if not exists ', arg,'SaveTable like ', arg);
-PREPARE stmt1 FROM @s1;
-EXECUTE stmt1;
-DEALLOCATE PREPARE stmt1;
-set @s1 = null;
-
-SET @s = CONCAT('truncate table ', arg,'SaveTable');
-PREPARE stmt FROM @s;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-set @s = null;
-
-SET @s2 = CONCAT('insert into  ', arg,'SaveTable select * from ', arg);
-PREPARE stmt2 FROM @s2;
-EXECUTE stmt2;
-DEALLOCATE PREPARE stmt2;
-set @s2 = null;
-
+call exec (CONCAT('drop table if exists ', arg,'SaveTable'));
+call exec (CONCAT('create table ', arg,'SaveTable like ', arg));
+call exec (CONCAT('insert into  ', arg,'SaveTable select * from ', arg));
 END// 
 
 
 
 -- загрузка
-CREATE PROCEDURE if not exists loadAndDropTable (arg varchar(50)) 
+CREATE PROCEDURE if not exists pullFromBackup (arg varchar(50)) 
 BEGIN 
-
--- SET @s = CONCAT('truncate table ', arg);
--- PREPARE stmt FROM @s;
--- EXECUTE stmt;
--- DEALLOCATE PREPARE stmt;
--- set @s = null;
-
--- SET @s1 = CONCAT('insert into  ', arg,' select * from ',arg,'SaveTable ');
--- PREPARE stmt1 FROM @s1;
--- EXECUTE stmt1;
--- DEALLOCATE PREPARE stmt1;
--- set @s1 = null;
-
--- SET @s2 = CONCAT('drop table ', arg);
--- PREPARE stmt2 FROM @s2;
--- EXECUTE stmt2;
--- DEALLOCATE PREPARE stmt2;
--- set @s2 = null;
-
+call exec (CONCAT('delete from ', arg));
+call exec (CONCAT('insert into  ', arg,' select * from ', arg, 'SaveTable'));
+call exec (CONCAT('drop table if exists ', arg,'SaveTable'));
 END// 
-
 
 
 
 
 DELIMITER ;
 
-
-
-call getIdInRange(2,4);
-call getAverage();
-call getAverageForArea();
-call getNewValues();
-call concatAreas ();
-
-call useConditionWithQuery ();
-call updateData ();
-call deleteData ();
-call saveTable ('person');
--- call loadAndDropTable ('person');
+-- call getInRange('person','id',2,4);
+-- call getAverage('house', 'id');
+call getGroupAverage('house', 'id', 'person_id', 'balcony');
+-- call getNewValues();
+-- call concatAreas ();
+-- call useConditionWithQuery ();
+-- call updateData ();
+-- call deleteData ();
+-- call pushToBackup ('person');
+-- call pullFromBackup ('person');
 
