@@ -1,3 +1,5 @@
+use monoTableBD;
+
 -- создание таблицы с полями
 create table if not exists person(
 id int primary key auto_increment not null,
@@ -76,7 +78,7 @@ intRandRange(0,1),-- Наличие балкона
 concat('typeBalconyEx', personNum) ,-- Тип балкона (отдельный, совмещенный)
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 decRandRange(1, 100),-- Компенсация при краже имущества
-DATE_ADD("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
 date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
 intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
@@ -86,7 +88,7 @@ date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),-- Дата и врем
 intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
 concat('documentEx', personNum), -- Документ, оформленный при задержании
-null-- Продление срока действия договора
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY)-- Продление срока действия договора
 );
 set i = i-1;
 end while;

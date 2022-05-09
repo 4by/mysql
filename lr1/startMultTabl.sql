@@ -1,3 +1,4 @@
+use multiTableBD;
 
 -- создание таблицы person с полями
 create table if not exists person(
@@ -181,9 +182,9 @@ null, -- Регистрационный номер клиента
 intRandRange(1, houseNum), -- ссылка на дом
 intRandRange(1, 100), -- Регистрационный номер договора
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
-DATE_ADD("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
 date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
-null-- Продление срока действия договора
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY)-- Продление срока действия договора
 );
 set i = i-1;
 end while;
