@@ -36,7 +36,8 @@ on delete cascade,
 TreatyID int,
 Cost decimal(15,2),
 DateStart Date,
-StopDate Date
+StopDate Date,
+Prolong Date
 );
 
 -- создание таблицы incident с полями
@@ -60,8 +61,7 @@ Brand varchar(15),
 DateTime DateTime,
 IsFalse bool,
 Tax decimal(15,2),
-Document varchar(40),
-Prolong Date
+Document varchar(40)
 );
 
 
@@ -181,8 +181,9 @@ null, -- Регистрационный номер клиента
 intRandRange(1, houseNum), -- ссылка на дом
 intRandRange(1, 100), -- Регистрационный номер договора
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
-now(),-- Начало действия договора
-now()-- Окончание действия
+DATE_ADD("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
+null-- Продление срока действия договора
 );
 set i = i-1;
 end while;
@@ -212,11 +213,10 @@ intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
 concat('chiefEx', incidentNum), -- Командир экипажа
 concat('brandEx', incidentNum), -- Марка автомобиля
-now(),-- Дата и время выезда
+date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),-- Дата и время выезда
 intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
-concat('documentEx', incidentNum), -- Документ, оформленный при задержании
-now()-- Продление срока действия договора
+concat('documentEx', incidentNum) -- Документ, оформленный при задержании
 );
 set i = i-1;
 end while;

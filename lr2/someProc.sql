@@ -108,8 +108,8 @@ call getAverageForArea();
 call getNewValues();
 call concatAreas ();
 call useConditionWithQuery ();
+call pushToBackup ('person');
 call updateData ();
 call deleteData ();
-call pushToBackup ('person');
 call pullFromBackup ('person');
 

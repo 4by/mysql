@@ -37,7 +37,7 @@ CREATE function if not exists personNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from person), 0);
+return (select count(id) from person);
 END// 
 
 -- функция-рандом для целых чисел
@@ -55,9 +55,11 @@ return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
 END// 
 
 -- процедура для создания поля person
-CREATE PROCEDURE if not exists addPersonArea () 
+CREATE PROCEDURE if not exists addPersonArea (i int) 
 BEGIN 
-declare personNum int default personNumber() + 1;
+declare personNum int default 0;
+while i>0 do
+set personNum = personNumber() + 1;
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
@@ -74,32 +76,33 @@ intRandRange(0,1),-- Наличие балкона
 concat('typeBalconyEx', personNum) ,-- Тип балкона (отдельный, совмещенный)
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 decRandRange(1, 100),-- Компенсация при краже имущества
-now(),-- Начало действия договора
-now(),-- Окончание действия
+DATE_ADD("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
 intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
 concat('chiefEx', personNum), -- Командир экипажа
 concat('brandEx', personNum), -- Марка автомобиля
-now(),-- Дата и время выезда
+date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),-- Дата и время выезда
 intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
 concat('documentEx', personNum), -- Документ, оформленный при задержании
-now()-- Продление срока действия договора
+null-- Продление срока действия договора
 );
+set i = i-1;
+end while;
+
 END// 
 
 
 DELIMITER ;
 
 -- заполнение таблицы данными
-call addPersonArea();
-call addPersonArea();
-call addPersonArea();
+call addPersonArea(3);
 
 -- получение информации о таблице
 show tables;
 describe person;
-select phone, floors, Tax from person;
+select phone, floors, prolong from person;
 
 
 
