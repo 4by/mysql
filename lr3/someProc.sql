@@ -11,7 +11,7 @@ declare needToAdd int default (50 - personNum);
 call addPersonArea(needToAdd);
 end//
 
-use multTableBD//
+use multiTableBD//
 
 CREATE procedure if not exists addConstaints ()
 begin
