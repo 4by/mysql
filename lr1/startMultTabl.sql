@@ -1,5 +1,8 @@
 use multiTableBD;
 
+-- импорт общих функций
+source lr1/sharedFunc.sql
+
 -- создание таблицы person с полями
 create table if not exists person(
 id int primary key auto_increment not null,
@@ -70,13 +73,6 @@ Document varchar(40)
 
 DELIMITER // 
 
--- количество полей в person
-CREATE function if not exists personNumber () 
-returns int
-deterministic
-BEGIN
-return (select count(id) from person);
-END// 
 
 -- количество полей в house
 CREATE function if not exists houseNumber () 
@@ -100,23 +96,6 @@ returns int
 deterministic
 BEGIN
 return (select count(id) from incident);
-END// 
-
-
--- функция-рандом для целых чисел
-CREATE function if not exists intRandRange (fromVal int, toVal int) 
-returns int
-deterministic
-BEGIN 
-return (SELECT (floor(RAND()*(toVal-fromVal+1)+fromVal)));
-END// 
-
--- функция-рандом для десятичных чисел
-CREATE function if not exists decRandRange (fromVal int, toVal int) 
-returns decimal(15,2)
-deterministic
-BEGIN 
-return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
 END// 
 
 -- процедура для внесения в person множества полей
@@ -194,13 +173,9 @@ END//
 -- процедура для внесения в incident множества полей
 CREATE PROCEDURE if not exists addIncidentArea (i int) 
 BEGIN 
-
-
 declare incidentNum int default 0;
 declare houseNum int default 0;
 declare servingNum int default 0;
-
-
 while i>0 do
 set incidentNum = incidentNumber()+1;
 set houseNum = houseNumber();

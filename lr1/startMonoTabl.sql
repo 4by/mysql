@@ -1,5 +1,8 @@
 use monoTableBD;
 
+-- импорт общих функций
+source lr1/sharedFunc.sql
+
 -- создание таблицы с полями
 create table if not exists person(
 id int primary key auto_increment not null,
@@ -34,27 +37,6 @@ Prolong Date
 -- функциональная часть
 DELIMITER // 
 
--- количество полей в person
-CREATE function if not exists personNumber () 
-returns int
-deterministic
-BEGIN
-return (select count(id) from person);
-END// 
-
--- функция-рандом для целых чисел
-CREATE function if not exists intRandRange (fromVal int, toVal int) returns int
-deterministic
-BEGIN 
-return (SELECT (floor(RAND()*(toVal-fromVal+1)+fromVal)));
-END// 
-
--- функция-рандом для десятичных чисел
-CREATE function if not exists decRandRange (fromVal int, toVal int) returns decimal(15,2)
-deterministic
-BEGIN 
-return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
-END// 
 
 -- процедура для создания поля person
 CREATE PROCEDURE if not exists addPersonArea (i int) 

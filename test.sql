@@ -1,3 +1,5 @@
+-- source lr1/dropAllBase.sql
+
 drop database if exists t;
 create database t;
 use t;
