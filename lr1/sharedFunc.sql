@@ -18,7 +18,7 @@ CREATE function if not exists personNumber ()
 returns int
 deterministic
 BEGIN
-return (select count(id) from person);
+return ifnull((select count(id) from person),0);
 END// 
 
 

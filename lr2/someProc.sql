@@ -69,7 +69,7 @@ set @s = null;
 END// 
 
 
--- сохранение (удалит ключи у зависимых таблиц)
+-- сохранение
 CREATE PROCEDURE if not exists pushToBackup (arg varchar(50)) 
 BEGIN 
 call exec (CONCAT('drop table if exists ', arg,'SaveTable'));
@@ -78,7 +78,7 @@ call exec (CONCAT('insert into  ', arg,'SaveTable select * from ', arg));
 END// 
 
 
--- загрузка
+-- загрузка (удалит ключи у зависимых таблиц)
 CREATE PROCEDURE if not exists pullFromBackup (arg varchar(50)) 
 BEGIN 
 call exec (CONCAT('delete from ', arg));

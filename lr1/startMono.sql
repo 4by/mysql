@@ -1,7 +1,10 @@
-use monoTableBD;
+-- (пере)инициализация БД
+drop database if exists monobd;
+create database monobd;
+use monobd;
 
 -- импорт общих функций
-source lr1/sharedFunc.sql
+source lr1/sharedFunc.sql;
 
 -- создание таблицы с полями
 create table if not exists person(

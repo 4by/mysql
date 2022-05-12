@@ -1,7 +1,10 @@
-use multiTableBD;
+-- (пере)инициализация БД
+drop database if exists multbd;
+create database multbd;
+use multbd;
 
 -- импорт общих функций
-source lr1/sharedFunc.sql
+source lr1/sharedFunc.sql;
 
 -- создание таблицы person с полями
 create table if not exists person(
@@ -79,7 +82,7 @@ CREATE function if not exists houseNumber ()
 returns int
 deterministic
 BEGIN
-return (select count(id) from house);
+return ifnull((select count(id) from house), 0);
 END// 
 
 -- количество полей в serving
@@ -87,7 +90,7 @@ CREATE function if not exists servingNumber ()
 returns int
 deterministic
 BEGIN
-return (select count(id) from serving);
+return ifnull((select count(id) from serving), 0);
 END// 
 
 -- количество полей в incident
@@ -95,7 +98,7 @@ CREATE function if not exists incidentNumber ()
 returns int
 deterministic
 BEGIN
-return (select count(id) from incident);
+return ifnull((select count(id) from incident), 0);
 END// 
 
 -- процедура для внесения в person множества полей
