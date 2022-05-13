@@ -64,7 +64,6 @@ alter table test_table modify newArea varchar(60) not null;
 end//
 
 
-
 delimiter ;
 
 -- задание а
@@ -151,26 +150,12 @@ order by floor limit 10);
 
 
 -- задание p
--- создали ф-и здесь, чтобы они не срабатывали раньше
-delimiter ||
--- create trigger multbd.person_sequence
--- before insert on multbd.person
--- for each row
--- begin
--- set NEW.id = ifnull((select max(id) from tabl1) + 2, 3);
--- end//
+source lr3/sequences.sql;
 
--- create trigger multbd.house_sequence
--- before insert on multbd.house
--- for each row
--- begin
--- set NEW.id = ifnull((select max(id) from tabl1) + 3, 2);
--- end//
-delimiter;
 
 -- задание с
-
-
+call multbd.addPersonArea(3);
+call multbd.addHouseArea(3);
 
 
 

@@ -82,7 +82,7 @@ CREATE function if not exists houseNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from house), 0);
+return ifnull((select max(id) from house), 0);
 END// 
 
 -- количество полей в serving
@@ -90,7 +90,7 @@ CREATE function if not exists servingNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from serving), 0);
+return ifnull((select max(id) from serving), 0);
 END// 
 
 -- количество полей в incident
@@ -98,7 +98,7 @@ CREATE function if not exists incidentNumber ()
 returns int
 deterministic
 BEGIN
-return ifnull((select count(id) from incident), 0);
+return ifnull((select max(id) from incident), 0);
 END// 
 
 -- процедура для внесения в person множества полей
@@ -109,7 +109,7 @@ declare personNum int default 0;
 
 while i>0 do
 set personNum = personNumber()+1;
-insert into person values (
+insert person values (
 null, -- Регистрационный номер клиента
 concat('nameEx', personNum), -- ФИО клиента
 concat('phoneEx', personNum) -- Телефон для связи с клиентом
@@ -130,11 +130,10 @@ declare personNum int default 0;
 
 while i>0 do
 set houseNum = houseNumber()+1;
-set personNum = personNumber();
-insert into house values (
+insert house values (
 null, -- Регистрационный номер клиента
-intRandRange(1, personNum), -- ссылка на пользователя
-concat('adressEx', personNum), -- Адрес клиента
+((select id from person) order by rand() limit 1), -- ссылка на пользователя
+concat('adressEx', houseNum), -- Адрес клиента
 concat('adressFlatEx', houseNum), -- Адрес квартиры
 intRandRange(0,1),-- Наличие кодового замка на подъезде
 intRandRange(1, 100),-- Количество этажей в доме
@@ -158,10 +157,9 @@ declare houseNum int default 0;
 
 
 while i>0 do
-set houseNum = houseNumber();
-insert into serving values (
+insert serving values (
 null, -- Регистрационный номер клиента
-intRandRange(1, houseNum), -- ссылка на дом
+((select id from house) order by rand() limit 1), -- ссылка на дом
 intRandRange(1, 100), -- Регистрационный номер договора
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
 date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
@@ -181,12 +179,10 @@ declare houseNum int default 0;
 declare servingNum int default 0;
 while i>0 do
 set incidentNum = incidentNumber()+1;
-set houseNum = houseNumber();
-set servingNum = servingNumber();
-insert into incident values (
+insert incident values (
 null, -- Регистрационный номер клиента
-intRandRange(1, houseNum), -- ссылка на дом
-intRandRange(1, servingNum), -- ссылка на обслуживание
+((select id from house) order by rand() limit 1), -- ссылка на дом
+((select id from serving) order by rand() limit 1), -- ссылка на обслуживание
 decRandRange(1, 100),-- Компенсация при краже имущества
 intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
@@ -216,10 +212,10 @@ call addIncidentArea(2);
 
 -- получение информации о таблицах
 
--- select count(id) from person;
--- select count(id) from house;
--- select count(id) from serving;
--- select count(id) from incident;
+-- select max(id) from person;
+-- select max(id) from house;
+-- select max(id) from serving;
+-- select max(id) from incident;
 -- select id, house_id, serving_id from incident order by id;
 -- show tables;
 -- describe person;

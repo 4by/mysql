@@ -14,7 +14,7 @@ CREATE TRIGGER tabl1_seq
 BEFORE INSERT ON tabl1
 FOR EACH ROW
 BEGIN
-SET NEW.id = (select max(id) from tabl1);
+SET NEW.id = ifnull((select max(id) from tabl1)+3, 1);
 END//
 
 delimiter ;
