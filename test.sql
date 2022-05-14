@@ -1,105 +1,127 @@
--- MySQL Workbench Synchronization
--- Generated: 2022-05-13 20:25
--- Model: New Model
--- Version: 1.0
--- Project: Name of the project
--- Author: Eugene
+-- (пере)инициализация БД
+drop database if exists qqbd;
+create database qqbd;
+use qqbd;
 
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+-- импорт общих функций
+source lr1/sharedFunc.sql;
 
-DROP SCHEMA IF EXISTS `t` ;
+-- создание таблицы person с полями
+create table if not exists person(
+id int primary key auto_increment not null,
+Name varchar(60),
+Phone varchar(10) not null
+);
 
-CREATE SCHEMA IF NOT EXISTS `U2` DEFAULT CHARACTER SET utf8 ;
+-- создание таблицы house с полями
+create table if not exists house(
+id int primary key auto_increment not null,
+person_id int not null,
+foreign key (person_id) 
+references person(id)
+on update cascade
+on delete cascade,
+Address varchar(60),
+AddressFlat varchar(60),
+KeyVal bool,
+Floors int,
+Floor int,
+TypeHouse varchar(20),
+TypeDoor varchar(20),
+Balcony bool,
+TypeBalcony varchar(20)
+);
 
-CREATE TABLE IF NOT EXISTS `U2`.`house` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `person_id` INT(11) NOT NULL,
-  `Address` VARCHAR(60) NULL DEFAULT NULL,
-  `AddressFlat` VARCHAR(60) NULL DEFAULT NULL,
-  `KeyVal` TINYINT(1) NULL DEFAULT NULL,
-  `Floors` INT(11) NULL DEFAULT NULL,
-  `Floor` INT(11) NULL DEFAULT NULL,
-  `TypeHouse` VARCHAR(20) NULL DEFAULT NULL,
-  `TypeDoor` VARCHAR(20) NULL DEFAULT NULL,
-  `Balcony` TINYINT(1) NULL DEFAULT NULL,
-  `TypeBalcony` VARCHAR(20) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `person_id` (`person_id` ASC) VISIBLE,
-  CONSTRAINT `house_ibfk_1`
-    FOREIGN KEY (`person_id`)
-    REFERENCES `U2`.`person` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 4
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+-- создание таблицы serving с полями
+create table if not exists serving(
+id int primary key auto_increment not null,
+house_id int not null,
+foreign key (house_id) 
+references house(id)
+on update cascade
+on delete cascade,
+TreatyID int,
+Cost decimal(15,2),
+DateStart Date,
+StopDate Date,
+Prolong Date
+);
 
-CREATE TABLE IF NOT EXISTS `U2`.`incident` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `house_id` INT(11) NOT NULL,
-  `serving_id` INT(11) NOT NULL,
-  `Compensation` DECIMAL(15,2) NULL DEFAULT NULL,
-  `ActionID` INT(11) NULL DEFAULT NULL,
-  `PatrolID` INT(11) NULL DEFAULT NULL,
-  `Chief` VARCHAR(10) NULL DEFAULT NULL,
-  `Brand` VARCHAR(15) NULL DEFAULT NULL,
-  `DateTime` DATETIME NULL DEFAULT NULL,
-  `IsFalse` TINYINT(1) NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `house_id` (`house_id` ASC) VISIBLE,
-  INDEX `serving_id` (`serving_id` ASC) VISIBLE,
-  CONSTRAINT `incident_ibfk_1`
-    FOREIGN KEY (`house_id`)
-    REFERENCES `U2`.`house` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `incident_ibfk_2`
-    FOREIGN KEY (`serving_id`)
-    REFERENCES `U2`.`serving` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 3
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-CREATE TABLE IF NOT EXISTS `U2`.`person` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `Name` VARCHAR(60) NULL DEFAULT NULL,
-  `Phone` VARCHAR(10) NOT NULL,
-  PRIMARY KEY (`id`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 6
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
-
-CREATE TABLE IF NOT EXISTS `U2`.`serving` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT,
-  `house_id` INT(11) NOT NULL,
-  `TreatyID` INT(11) NULL DEFAULT NULL,
-  `Cost` DECIMAL(15,2) NULL DEFAULT NULL,
-  `DateStart` DATE NULL DEFAULT NULL,
-  `StopDate` DATE NULL DEFAULT NULL,
-  `Prolong` DATE NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  INDEX `house_id` (`house_id` ASC) VISIBLE,
-  CONSTRAINT `serving_ibfk_1`
-    FOREIGN KEY (`house_id`)
-    REFERENCES `U2`.`house` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-AUTO_INCREMENT = 5
-DEFAULT CHARACTER SET = utf8mb4
-COLLATE = utf8mb4_0900_ai_ci;
+-- создание таблицы incident с полями
+create table if not exists incident(
+id int primary key auto_increment not null,
+house_id int not null,
+serving_id int not null,
+foreign key (house_id) 
+references house(id)
+on update cascade
+on delete cascade,
+foreign key (serving_id) 
+references serving(id)
+on update cascade
+on delete cascade,
+Compensation decimal(15,2),
+ActionID int,
+PatrolID int,
+Chief varchar(10),
+Brand varchar(15),
+DateTime DateTime,
+IsFalse bool,
+Tax decimal(15,2),
+Document varchar(40)
+);
 
 
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `addHouseArea`(i int)
+-- функциональная часть
+
+DELIMITER // 
+
+
+-- количество полей в house
+CREATE function if not exists houseNumber () 
+returns int
+deterministic
+BEGIN
+return ifnull((select max(id) from house), 0);
+END// 
+
+-- количество полей в serving
+CREATE function if not exists servingNumber () 
+returns int
+deterministic
+BEGIN
+return ifnull((select max(id) from serving), 0);
+END// 
+
+-- количество полей в incident
+CREATE function if not exists incidentNumber () 
+returns int
+deterministic
+BEGIN
+return ifnull((select max(id) from incident), 0);
+END// 
+
+-- процедура для внесения в person множества полей
+CREATE PROCEDURE if not exists addPersonArea (i int) 
+BEGIN 
+
+declare personNum int default 0;
+
+while i>0 do
+set personNum = personNumber()+1;
+insert person values (
+null, -- Регистрационный номер клиента
+concat('nameEx', personNum), -- ФИО клиента
+concat('phoneEx', personNum) -- Телефон для связи с клиентом
+);
+set i = i-1;
+end while;
+
+END// 
+
+
+-- процедура для внесения в house множества полей
+CREATE PROCEDURE if not exists addHouseArea (i int) 
 BEGIN 
 
 declare houseNum int default 0;
@@ -109,28 +131,48 @@ declare personNum int default 0;
 while i>0 do
 set houseNum = houseNumber()+1;
 insert house values (
-null, 
-((select id from person) order by rand() limit 1), 
-concat('adressEx', houseNum), 
-concat('adressFlatEx', houseNum), 
-intRandRange(0,1),
-intRandRange(1, 100),
-intRandRange(1, 100),
-concat('typeHouseEx', houseNum), 
-concat('typeDoorEx', houseNum), 
-intRandRange(0,1),
-concat('typeBalconyEx', houseNum) 
+null, -- Регистрационный номер клиента
+((select id from person) order by rand() limit 1), -- ссылка на пользователя
+concat('adressEx', houseNum), -- Адрес клиента
+concat('adressFlatEx', houseNum), -- Адрес квартиры
+intRandRange(0,1),-- Наличие кодового замка на подъезде
+intRandRange(1, 100),-- Количество этажей в доме
+intRandRange(1, 100),-- Этаж, на котором расположена квартира
+concat('typeHouseEx', houseNum), -- Тип дома (кирпичный, панельный)
+concat('typeDoorEx', houseNum), -- Тип квартирной двери (мет, дер, две шт.)
+intRandRange(0,1),-- Наличие балкона
+concat('typeBalconyEx', houseNum) -- Тип балкона (отдельный, совмещенный)
 );
 set i = i-1;
 end while;
 
-END$$
+END// 
 
-DELIMITER ;
 
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `addIncidentArea`(i int)
+
+-- процедура для внесения в serving множества полей
+CREATE PROCEDURE if not exists addServingArea (i int) 
+BEGIN 
+declare houseNum int default 0;
+
+
+while i>0 do
+insert serving values (
+null, -- Регистрационный номер клиента
+((select id from house) order by rand() limit 1), -- ссылка на дом
+intRandRange(1, 100), -- Регистрационный номер договора
+decRandRange(1, 100),-- Стоимость ежемесячной оплаты
+date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
+date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY)-- Продление срока действия договора
+);
+set i = i-1;
+end while;
+
+END// 
+
+-- процедура для внесения в incident множества полей
+CREATE PROCEDURE if not exists addIncidentArea (i int) 
 BEGIN 
 declare incidentNum int default 0;
 declare houseNum int default 0;
@@ -138,132 +180,52 @@ declare servingNum int default 0;
 while i>0 do
 set incidentNum = incidentNumber()+1;
 insert incident values (
-null, 
-((select id from house) order by rand() limit 1), 
-((select id from serving) order by rand() limit 1), 
-decRandRange(1, 100),
-intRandRange(1, 100),
-intRandRange(1, 100),
-concat('chiefEx', incidentNum), 
-concat('brandEx', incidentNum), 
-date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),
-intRandRange(0,1),
-decRandRange(1, 100),
-concat('documentEx', incidentNum) 
+null, -- Регистрационный номер клиента
+((select id from house) order by rand() limit 1), -- ссылка на дом
+((select id from serving) order by rand() limit 1), -- ссылка на обслуживание
+decRandRange(1, 100),-- Компенсация при краже имущества
+intRandRange(1, 100),-- Номер выезда на захват
+intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
+concat('chiefEx', incidentNum), -- Командир экипажа
+concat('brandEx', incidentNum), -- Марка автомобиля
+date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),-- Дата и время выезда
+intRandRange(0,1),-- Вызов ложный (да/нет)
+decRandRange(1, 100),-- Величина штрафа за ложный вызов
+concat('documentEx', incidentNum) -- Документ, оформленный при задержании
 );
 set i = i-1;
 end while;
 
 
-END$$
+END// 
+
+
 
 DELIMITER ;
 
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `addPersonArea`(i int)
-BEGIN 
 
-declare personNum int default 0;
+-- заполнение таблицы данными
+call addPersonArea(5);
+call addHouseArea(3);
+call addServingArea(4);
+call addIncidentArea(2);
 
-while i>0 do
-set personNum = personNumber()+1;
-insert person values (
-null, 
-concat('nameEx', personNum), 
-concat('phoneEx', personNum) 
-);
-set i = i-1;
-end while;
+-- получение информации о таблицах
 
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `addServingArea`(i int)
-BEGIN 
-declare houseNum int default 0;
-
-
-while i>0 do
-insert serving values (
-null, 
-((select id from house) order by rand() limit 1), 
-intRandRange(1, 100), 
-decRandRange(1, 100),
-date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),
-date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),
-date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY)
-);
-set i = i-1;
-end while;
-
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `decRandRange`(fromVal int, toVal int) RETURNS decimal(15,2)
-    DETERMINISTIC
-BEGIN 
-return (SELECT (round(RAND()*(toVal-fromVal+1)+fromVal, 2)));
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `houseNumber`() RETURNS int
-    DETERMINISTIC
-BEGIN
-return ifnull((select max(id) from house), 0);
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `incidentNumber`() RETURNS int
-    DETERMINISTIC
-BEGIN
-return ifnull((select max(id) from incident), 0);
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `intRandRange`(fromVal int, toVal int) RETURNS int
-    DETERMINISTIC
-BEGIN 
-return (SELECT (floor(RAND()*(toVal-fromVal+1)+fromVal)));
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `personNumber`() RETURNS int
-    DETERMINISTIC
-BEGIN
-return ifnull((select max(id) from person),0);
-END$$
-
-DELIMITER ;
-
-DELIMITER $$
-USE `U2`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `servingNumber`() RETURNS int
-    DETERMINISTIC
-BEGIN
-return ifnull((select max(id) from serving), 0);
-END$$
-
-DELIMITER ;
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+-- select max(id) from person;
+-- select max(id) from house;
+-- select max(id) from serving;
+-- select max(id) from incident;
+-- select id, house_id, serving_id from incident order by id;
+-- show tables;
+-- describe person;
+-- describe house;
+-- describe serving;
+-- describe incident;
+-- select Phone from person;
+-- select Floor from house;
+-- select Cost from serving;
+-- select ActionID from incident;
+-- update person set Name = "nameChangedEx1";
+-- alter table person drop column name; -- выдаст ошибку на второй вызов
+-- alter table person drop column id; -- не сработает
