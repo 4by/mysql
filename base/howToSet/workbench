@@ -1,0 +1,4 @@
+если access denied for root
+-> select user, plugin from mysql.user;
+видим, что для root стоит auth_socket
+-> ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password by 'NEW_PASS';

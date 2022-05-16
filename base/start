@@ -1,7 +1,0 @@
-sudo apt install mysql-server
-
-
-
-sudo mysql -u root
-запуск
-

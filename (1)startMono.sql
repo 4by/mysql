@@ -4,7 +4,7 @@ create database monobd;
 use monobd;
 
 -- импорт общих функций
-source lr1/sharedFunc.sql;
+source (1)sharedFunc.sql;
 
 -- создание таблицы с полями
 create table if not exists person(

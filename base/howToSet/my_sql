@@ -1,0 +1,23 @@
+установка
+sudo apt install mysql-server
+
+
+удаление
+sudo apt remove mysql-server
+sudo apt purge mysql\* libmysql\*
+sudo find / -name mysql
+(
+var/log/mysql
+/var/lib/mysql
+/etc/mysql
+)
+sudo rm -rf (ВСЕ НАЙДЕННОЕ)
+sudo apt autoremove
+
+
+запуск
+sudo mysql -u root
+
+процесс, мешающий при установке
+sudo fuser -v /var/cache/debconf/config.dat
+

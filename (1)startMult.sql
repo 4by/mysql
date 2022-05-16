@@ -1,10 +1,10 @@
 -- (пере)инициализация БД
-drop database if exists qqbd;
-create database qqbd;
-use qqbd;
+drop database if exists multbd;
+create database multbd;
+use multbd;
 
 -- импорт общих функций
-source lr1/sharedFunc.sql;
+source (1)sharedFunc.sql;
 
 -- создание таблицы person с полями
 create table if not exists person(
@@ -162,9 +162,9 @@ null, -- Регистрационный номер клиента
 ((select id from house) order by rand() limit 1), -- ссылка на дом
 intRandRange(1, 100), -- Регистрационный номер договора
 decRandRange(1, 100),-- Стоимость ежемесячной оплаты
-date_add("2017-06-15", INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
-date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY),-- Окончание действия
-date_add("2017-06-15", INTERVAL intRandRange(100,200) DAY)-- Продление срока действия договора
+date_add(now(), INTERVAL intRandRange(0,100) DAY),-- Начало действия договора
+date_add(now(), INTERVAL intRandRange(100,200) DAY),-- Окончание действия
+date_add(now(), INTERVAL intRandRange(100,200) DAY)-- Продление срока действия договора
 );
 set i = i-1;
 end while;
@@ -188,7 +188,7 @@ intRandRange(1, 100),-- Номер выезда на захват
 intRandRange(1, 100),-- Номер экипажа, выезжавшего на захват
 concat('chiefEx', incidentNum), -- Командир экипажа
 concat('brandEx', incidentNum), -- Марка автомобиля
-date_add("2017-06-15", INTERVAL intRandRange(0,200) DAY),-- Дата и время выезда
+date_add(now(), INTERVAL intRandRange(0,200) DAY),-- Дата и время выезда
 intRandRange(0,1),-- Вызов ложный (да/нет)
 decRandRange(1, 100),-- Величина штрафа за ложный вызов
 concat('documentEx', incidentNum) -- Документ, оформленный при задержании
@@ -211,7 +211,6 @@ call addServingArea(4);
 call addIncidentArea(2);
 
 -- получение информации о таблицах
-
 -- select max(id) from person;
 -- select max(id) from house;
 -- select max(id) from serving;

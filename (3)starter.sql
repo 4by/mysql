@@ -1,4 +1,4 @@
-source lr1/starter.sql;
+source (1)starter.sql;
 
 drop database if exists thirdbd;
 create database thirdbd;
@@ -150,7 +150,7 @@ order by floor limit 10);
 
 
 -- задание p
-source lr3/sequences.sql;
+source (3)sequences.sql;
 
 
 -- задание с
