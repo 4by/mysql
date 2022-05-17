@@ -50,7 +50,7 @@ set personNum = personNumber() + 1;
 insert into person values (
 null, -- Регистрационный номер клиента
 concat('adressEx', personNum), -- Адрес клиента
-concat('nameEx', personNum), -- ФИО клиента
+concat('name surname fathname ex', personNum), -- ФИО клиента
 concat('phoneEx', personNum), -- Телефон для связи с клиентом
 intRandRange(1, 100), -- Регистрационный номер договора
 concat('adressFlatEx', personNum), -- Адрес квартиры
@@ -86,10 +86,11 @@ DELIMITER ;
 -- заполнение таблицы данными
 call addPersonArea(3);
 
--- получение информации о таблице
-show tables;
-describe person;
-select phone, floors, prolong from person;
+-- получение информации о таблице полями
+-- (закомментировал, чтобы не мешало)
+-- show tables;
+-- describe person;
+-- select phone, floors, prolong from person;
 
 
 

@@ -111,7 +111,7 @@ while i>0 do
 set personNum = personNumber()+1;
 insert person values (
 null, -- Регистрационный номер клиента
-concat('nameEx', personNum), -- ФИО клиента
+concat('name surname fathname ex', personNum), -- ФИО клиента
 concat('phoneEx', personNum) -- Телефон для связи с клиентом
 );
 set i = i-1;
